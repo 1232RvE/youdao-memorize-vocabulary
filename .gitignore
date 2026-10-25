@@ -1,0 +1,19 @@
+# 依赖
+node_modules/
+
+# 构建中间产物
+.falcon_/
+.falcon_tmp/
+dist/
+
+# 系统 / 编辑器
+.DS_Store
+Thumbs.db
+desktop.ini
+.idea/
+.vscode/
+*.log
+
+# Python 缓存
+__pycache__/
+*.pyc

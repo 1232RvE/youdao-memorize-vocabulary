@@ -1,0 +1,71 @@
+profile_id: youdao-YDP726-buildroot2021.11
+model: "YoudaoDictionaryPen-726"
+adb_serial: MF22200009004726
+firmware: "Buildroot 2021.11 / -g9a6d10c0cf / RK3562 (y02)"
+runtime: { falcon: "jsfm-nvue", quickjs: "20200705 (bigNum: false)", jsapi_keys: 16 }
+abi: { machine: "aarch64", bits: 64, libc: "glibc", loader: "", toolchain: "" }
+screen:
+  logical: { width: 936, height: 280 }
+  physical: { width: 280, height: 936, direction: 270, xoffset: 0, yoffset: 0 }
+  touch: { direction: 270, xoffset: 0, yoffset: 0 }
+input_method: { version: "", global_text_edit: true, textarea_soft_input: false }
+package: { appid: "8000000000765868", version: "1.0.0", start_page: index }
+validation:
+  tested_at: "2026-09-30"
+  evidence:
+    - "build: Node 16 + aiot-vue-cli 1.0.32 build -c -q -p -> 8000000000765868.1_0_0.amr (460927 B)"
+    - "amr sha256 05ef867ddcd04215fa003ca1356978f0f7627bcf4a82e0800a18d628822975c4 (device 与本地一致)"
+    - "amr entries: app.js.bin, base-page-0f642979.js.bin, blank.js.bin, icon.png, index.js.bin, manifest.json"
+    - "manifest cert 4 项 size/md5 全部校验通过; 构建无 Weex selector 警告"
+    - "install: miniapp_cli install -> {appid,ret:0}"
+    - "start: miniapp_cli start 8000000000765868 index -> {ret:0}"
+    - "log: [App] setViewPort 936x280 source=falcon.env  ← 运行时探测,非写死值"
+    - "memoryApp: App(8000000000765868) size(all)=79904, Page(index) Elm=36"
+    - "稳定性: index->blank->index 后 size(all) 恒为 79904,无增长; core dump 0"
+    - "设备已装 index.js.bin md5=654b0f13587e1ab112fba05e65bd200e 与本地 .falcon_ 一致"
+  engine_tests:
+    - "纯逻辑(本机 node,new Function 去 export 后取 createEngine)"
+    - "流程(UI 实映射): chooseStudyRating(0=认识,1=不认识) -> submitStudy()"
+    - "全『认识』12 步收敛; 随机知识率 90/80/70/60/50% 均能终止(最坏 304 步)"
+    - "❗仍存在终止性缺陷: 见 open_issues.session_never_ends_on_repeated_unknown"
+  unverified:
+    - "系统输入法(本 app 未使用,词库为内置静态 JSON)"
+    - "触控点击的真实响应(注入按键未测;event=5 事件绑定已在渲染树确认)"
+    - "@touchstart/@touchend 按压反馈(.pressed)真机未点按验证"
+    - "两步式学习流程(先判定认识/不认识,再显示释义+继续)真机未走通"
+    - "存储持久化跨进程重启的读回(storage.getGlobalStorage 回调路径未逐条验证)"
+open_issues:
+  - id: session_never_ends_on_repeated_unknown
+    severity: high
+    status: "在本轮(engine.js 22:22 重写)后仍未修复 —— 代码结构变了,缺陷保留了"
+    where: "src/services/engine.js e.submitStudy() 第 17 行"
+    symptom: "只要有一个词用户每次都点『不认识』,本轮学习永远无法结束(进不到 summary)"
+    cause: >
+      target=e.targets[id]||(known?2:4)。首次答『不认识』→ targets[id]=4;
+      而每次答『不认识』都执行 if(!known)e.rounds[id]=0,把连对计数清零。
+      于是该词必须「连续 4 次答对」才出队,但只要中途再遇到它一次就归零重来。
+      同时答对时把该词 splice 回队列,队列只增不减 → 无限循环。
+    repro: |
+      node -e "
+      const fs=require('fs');
+      let src=fs.readFileSync('src/services/engine.js','utf8').replace(/^export function/m,'function');
+      const createEngine=new Function(src+';return createEngine;')();
+      const dict={id:'d1',name:'t',words:Array.from({length:30},(_,i)=>({id:i+1,word:'w'+i,translation:'t'+i}))};
+      const e=createEngine([dict],{dictId:'d1',batchSize:6},()=>{});
+      e.startStudy();
+      const hard=new Set(e.queue.slice(0,1).map(w=>w.id));   // 只有 1 个词始终不认识
+      let g=0; while(e.page!=='summary'&&g<3000){g++;
+        e.chooseStudyRating(hard.has(e.current.id)?1:0); e.submitStudy(); }
+      console.log('steps',g,'page',e.page,'queueLen',e.queue.length);  // 3000 study 3007
+      "
+    measured: >
+      1 个词始终『不认识』(其余全认识): 100/100 局永不终止 — 这是最贴近真实用户的情形。
+      对抗性交替(认识/不认识 严格交替): 50/50 局不终止。
+      1/3 固定漏答: 37/50 局不终止。
+      随机知识率 90~50% 均可终止(最坏 304 步) —— 因为迟早会出现 4 连对。
+    impact: "用户只要遇到一个真正记不住的词,本轮就卡死,无法完成、无法看总结。"
+    suggested_fix: >
+      任选其一,改完请跑 tools/check.js 里的回归用例(已内置该场景,当前会 FAIL):
+      (a) 去掉 if(!known)e.rounds[id]=0 —— 改为「累计答对次数」达到 target 即出队(不要求连对);
+      (b) 保留连对语义,但给队列/重插次数设硬上界,超出即强制出队;
+      (c) 『不认识』不提高 target,仅把该词放回队列末尾,避免门槛随答错而升高。

@@ -1,0 +1,35 @@
+{
+  "name": "words-falcon",
+  "appName": "背单词",
+  "appid": "8000000000765868",
+  "version": "1.1.0",
+  "description": "背单词 — 有道词典笔 PenOS/Falcon 版，移植自 PenMods QML 插件 words_plugin",
+  "icon": "src/assets/icon.png",
+  "main": "src/app.js",
+  "single-js-bundle": false,
+  "scripts": {
+    "build": "node tools/build.js",
+    "check": "node tools/check.js"
+  },
+  "dependencies": {
+    "aiot-vue-cli": "^1.0.4",
+    "falcon-ui": "^1.0.3",
+    "vue": "2.6.12"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/1232RvE/youdao-memorize-vocabulary.git"
+  },
+  "homepage": "https://github.com/1232RvE/youdao-memorize-vocabulary#readme",
+  "keywords": [
+    "youdao",
+    "dictionary-pen",
+    "falcon",
+    "quickjs",
+    "miniapp",
+    "vue",
+    "vocabulary"
+  ],
+  "author": "1232RvE"
+}

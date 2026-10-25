@@ -1,0 +1,60 @@
+{
+  "appid": "8000000000765868",
+  "name": "背单词",
+  "version": "1.1.0",
+  "description": "PenOS/Falcon 背单词（词库学习 + 复习）",
+  "icon": "assets/icon.png",
+  "pages": {
+    "index": "pages/index/index.js",
+    "blank": "pages/blank/blank.vue"
+  },
+  "entryPage": "index",
+  "window": {
+    "title": "背单词",
+    "backgroundColor": "#0b111a",
+    "pullDownRefresh": false
+  },
+  "quickjs": {
+    "version": "20200705",
+    "bigNum": false
+  },
+  "props": {
+    "Preload": false,
+    "Bootup": ["index"],
+    "supportUnInstall": true,
+    "addDesktop": {
+      "almond_platform": true,
+      "apollo_platform": true,
+      "cherry_platform": true,
+      "coco_platform": true,
+      "d2_platform": true,
+      "d3_platform": true,
+      "exam_platform": true,
+      "hermes_platform": true,
+      "hermes_plus_platform": true,
+      "kiwi_platform": true,
+      "mango_platform": true,
+      "melon_platform": true,
+      "olive_platform": true,
+      "orange_platform": true,
+      "p6_platform": true,
+      "peach_platform": true,
+      "pear_platform": true,
+      "pineapple_platform": true,
+      "plum_platform": true,
+      "popcorn_platform": true,
+      "x3s_platform": true,
+      "y02_1_platform": true,
+      "y02_platform": true,
+      "y03_platform": true,
+      "y05_platform": true,
+      "y06_platform": true,
+      "y07_platform": true,
+      "y08_platform": true,
+      "y09_platform": true,
+      "y09p_platform": true,
+      "y11_platform": true,
+      "y24_platform": true
+    }
+  }
+}
