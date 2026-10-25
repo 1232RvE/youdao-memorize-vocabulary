@@ -40,8 +40,25 @@ if (!CLI) {
   process.exit(1);
 }
 
+// 构建产物统一落到 data/（仓库里 amr 的既定位置，方便 clone 后直接 adb install）
+const OUT_DIR = path.join(ROOT, 'data');
+fs.mkdirSync(OUT_DIR, { recursive: true });
+
 const args = [CLI, 'build', '-c', '-q', '-p', '--dir', ROOT, '--silent'];
 console.log('[build] ' + NODE_BIN + ' ' + args.join(' '));
 
 const r = spawnSync(NODE_BIN, args, { stdio: 'inherit', cwd: ROOT });
-process.exit(r.status === null ? 1 : r.status);
+const status = r.status === null ? 1 : r.status;
+
+// aiot-vue-cli 把 AMR 吐在工程根目录，这里搬到 data/
+if (status === 0) {
+  for (const f of fs.readdirSync(ROOT)) {
+    if (!f.endsWith('.amr')) continue;
+    const from = path.join(ROOT, f);
+    const to = path.join(OUT_DIR, f);
+    fs.renameSync(from, to);
+    console.log('[build] 产物已移动: ' + to);
+  }
+}
+
+process.exit(status);
