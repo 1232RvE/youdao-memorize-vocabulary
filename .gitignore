@@ -17,3 +17,6 @@ desktop.ini
 # Python 缓存
 __pycache__/
 *.pyc
+
+# 历史版本包归档（不入库）
+data/archive/
