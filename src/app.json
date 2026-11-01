@@ -1,7 +1,7 @@
 {
   "appid": "8000000000765868",
   "name": "背单词",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "PenOS/Falcon 背单词（词库学习 + 复习）",
   "icon": "assets/icon.png",
   "pages": {
@@ -20,7 +20,9 @@
   },
   "props": {
     "Preload": false,
-    "Bootup": ["index"],
+    "Bootup": [
+      "index"
+    ],
     "supportUnInstall": true,
     "addDesktop": {
       "almond_platform": true,

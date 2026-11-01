@@ -28,11 +28,11 @@ npm install
 # 2. 静态校验（26 项：appid、页注册、词库完整性、无 px、无 emoji 等）
 npm run check
 
-# 3. 构建，产出 <appid>.1_1_0.amr
+# 3. 构建，产出 <appid>.1_1_1.amr
 npm run build
 
 # 4. 安装到设备（构建产物落在 data/ 目录，已随仓库提供现成包）
-adb push data/8000000000765868.1_1_0.amr /data/local/tmp/w.amr
+adb push data/8000000000765868.1_1_1.amr /data/local/tmp/w.amr
 adb shell "miniapp_cli uninstall 8000000000765868"
 adb shell "miniapp_cli install /data/local/tmp/w.amr"
 adb shell "miniapp_cli start 8000000000765868"

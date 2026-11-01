@@ -2,7 +2,7 @@
   "name": "words-falcon",
   "appName": "背单词",
   "appid": "8000000000765868",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "背单词 — 有道词典笔 PenOS/Falcon 版，移植自 PenMods QML 插件 words_plugin",
   "icon": "src/assets/icon.png",
   "main": "src/app.js",
