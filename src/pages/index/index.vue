@@ -132,8 +132,13 @@
         </view>
       </view>
       <view v-else class="choices">
-        <view v-for="(choice, i) in choices" :key="choice.id" :class="choiceClass(i)" @touchstart="onDown('c' + i)" @touchend="onUp('c' + i, pickChoice)" @touchcancel="onCancel">
-          <text :class="direction === 0 ? 'choice-text' : 'choice-word'">{{ choiceText(choice) }}</text>
+        <view class="choice-row" v-for="(row, ri) in choiceRows" :key="'r' + ri">
+          <view v-for="(choice, ci) in row" :key="choice.id" :class="choiceClass(ri * 2 + ci) + (ci === 1 ? ' choice-last' : '')" @touchstart="onDown('c' + (ri * 2 + ci))" @touchend="onUp('c' + (ri * 2 + ci), pickChoice)" @touchcancel="onCancel">
+            <view class="choice-badge">
+              <text class="choice-badge-text">{{ choiceLetter(ri * 2 + ci) }}</text>
+            </view>
+            <text :class="direction === 0 ? 'choice-text' : 'choice-word'">{{ choiceText(choice) }}</text>
+          </view>
         </view>
       </view>
     </view>
@@ -211,6 +216,11 @@ export default {
       if (h < 12) return '早上好';
       if (h < 18) return '下午好';
       return '晚上好';
+    },
+    choiceRows() {
+      var out = [];
+      for (var i = 0; i < this.choices.length; i += 2) out.push(this.choices.slice(i, i + 2));
+      return out;
     },
     progressIndex() { return this.engine ? Math.min(this.engine.index + 1, this.engine.queue.length) : 0; },
     queueLength() { return this.engine ? this.engine.queue.length : 0; },
@@ -292,6 +302,7 @@ export default {
     chooseKnown() { this.engine.chooseStudyRating(0); this.refresh(); },
     submitStudy() { this.engine.submitStudy(); this.refresh(); },
     choiceText(choice) { return this.direction === 0 ? (choice.translation || choice.definition) : choice.word; },
+    choiceLetter(i) { return 'ABCD'[i] || ''; },
     choiceClass(i) {
       if (this.engine && this.engine.correctPick === i) return 'choice choice-correct';
       if (this.engine && this.engine.wrongPicks.indexOf(i) >= 0) return 'choice choice-wrong';
@@ -345,73 +356,81 @@ export default {
 /* ---------- 顶栏 ---------- */
 .topbar {
   width: 100%;
-  height: 13vh;
+  height: 15vh;
   flex-direction: row;
   align-items: center;
-  padding-left: 1.6vw;
-  padding-right: 1.6vw;
+  padding-left: 2vw;
+  padding-right: 2vw;
+  border-bottom-width: 0.2vh;
+  border-bottom-color: #1a2434;
   background-color: #101825;
 }
 
 .back-wrap {
-  width: 7.4vh;
-  height: 7.4vh;
-  margin-right: 1.6vw;
+  width: 9.4vh;
+  height: 9.4vh;
+  margin-right: 1.8vw;
   align-items: center;
   justify-content: center;
-  border-radius: 3.7vh;
-  background-color: #1a2434;
+  border-radius: 4.7vh;
+  background-color: #1c2839;
 }
 
-.back-icon { width: 4.2vh; height: 4.2vh; }
+.back-icon { width: 5.4vh; height: 5.4vh; }
 
-.title { color: #f2f6fb; font-size: 5.2vh; font-weight: bold; }
+.title { color: #f4f8fd; font-size: 6.6vh; font-weight: bold; }
 
-.topbar-right { margin-left: auto; color: #71829a; font-size: 3.4vh; }
+.topbar-right { margin-left: auto; color: #7d8ea3; font-size: 4.6vh; }
 
 .dict-wrap {
   margin-left: auto;
-  height: 8.2vh;
+  height: 10vh;
   flex-direction: row;
   align-items: center;
-  padding-left: 1.6vw;
-  padding-right: 1.4vw;
-  border-radius: 4.1vh;
-  background-color: #182335;
+  padding-left: 1.8vw;
+  padding-right: 1.6vw;
+  border-radius: 5vh;
+  background-color: #1a2637;
 }
 
-.dict { max-width: 26vw; color: #cfe0f5; font-size: 3.4vh; lines: 1; text-overflow: ellipsis; }
+.dict { max-width: 26vw; color: #d6e4f5; font-size: 4.8vh; lines: 1; text-overflow: ellipsis; }
 
-.dict-caret { margin-left: 0.6vw; color: #5d6f87; font-size: 2.8vh; }
+.dict-caret { margin-left: 0.8vw; color: #6b7f99; font-size: 4.2vh; }
 
 /* ---------- 首页 ---------- */
 .body-scroll { width: 100%; flex: 1; }
 
-.body { width: 100%; padding-left: 2vw; padding-right: 2vw; padding-top: 1.4vh; }
+.body { width: 100%; padding-left: 2.4vw; padding-right: 2.4vw; padding-top: 1.8vh; }
 
-.hero { width: 100%; }
+.hero {
+  width: 100%;
+  padding: 2.4vh 2.4vw;
+  border-radius: 2.6vh;
+  background-color: #131e2f;
+  background-image: linear-gradient(to right, #16273f, #131c2b);
+}
 
-.hero-title { color: #ffffff; font-size: 5.6vh; font-weight: bold; }
+.hero-title { color: #ffffff; font-size: 7.6vh; font-weight: bold; }
 
-.hero-sub { margin-top: 0.7vh; color: #7d8ea3; font-size: 3.2vh; }
+.hero-sub { margin-top: 0.9vh; color: #8a9cb2; font-size: 4.6vh; }
 
-.stats { width: 100%; flex-direction: row; margin-top: 2vh; }
+.stats { width: 100%; flex-direction: row; margin-top: 2.2vh; }
 
 .stat {
   flex: 1;
-  height: 13vh;
-  margin-right: 1.4vw;
+  height: 17vh;
+  margin-right: 1.6vw;
   align-items: center;
   justify-content: center;
-  border-radius: 2.2vh;
+  border-radius: 2.4vh;
   background-color: #141d2b;
 }
 
 .stat-last { margin-right: 0; }
 
-.stat-num { color: #eef4fb; font-size: 5.6vh; font-weight: bold; }
+.stat-num { color: #f0f6fc; font-size: 7.8vh; font-weight: bold; }
 
-.stat-label { margin-top: 0.7vh; color: #71829a; font-size: 3.1vh; }
+.stat-label { margin-top: 0.8vh; color: #78899f; font-size: 4.4vh; }
 
 .accent { color: #5b8def; }
 
@@ -421,41 +440,42 @@ export default {
 
 .bad { color: #e07a63; }
 
-.actions { width: 100%; height: 13vh; flex-direction: row; margin-top: 2vh; }
+.actions { width: 100%; height: 15vh; flex-direction: row; margin-top: 2.2vh; }
 
 .primary {
   flex: 1;
-  height: 13vh;
+  height: 15vh;
   align-items: center;
   justify-content: center;
-  border-radius: 6.5vh;
+  border-radius: 7.5vh;
   background-color: #3f6fd8;
+  background-image: linear-gradient(to bottom, #4d7fe6, #3862c6);
 }
 
 .secondary {
   flex: 1;
-  height: 13vh;
-  margin-left: 1.4vw;
+  height: 15vh;
+  margin-left: 1.6vw;
   align-items: center;
   justify-content: center;
-  border-radius: 6.5vh;
+  border-radius: 7.5vh;
   background-color: #1a2434;
 }
 
-.button-text { color: #ffffff; font-size: 4.2vh; font-weight: bold; }
+.button-text { color: #ffffff; font-size: 5.6vh; font-weight: bold; }
 
 .pressed { opacity: 0.5; }
 
 /* ---------- 设置 ---------- */
-.settings { width: 100%; margin-top: 2.2vh; }
+.settings { width: 100%; margin-top: 2.8vh; }
 
-.section-label { color: #71829a; font-size: 3.1vh; }
+.section-label { color: #78899f; font-size: 4.4vh; }
 
-.section-title { color: #ffffff; font-size: 4.6vh; font-weight: bold; }
+.section-title { color: #ffffff; font-size: 6.2vh; font-weight: bold; }
 
 .setting-row {
   width: 100%;
-  height: 9vh;
+  height: 12.5vh;
   flex-direction: row;
   align-items: center;
   border-bottom-width: 0.25vh;
@@ -464,96 +484,96 @@ export default {
 
 .setting-row-last { border-bottom-width: 0; }
 
-.setting-label { color: #b9c7d6; font-size: 3.6vh; }
+.setting-label { color: #c3d0e0; font-size: 5vh; }
 
 .chips { flex-direction: row; margin-left: auto; align-items: center; }
 
 .chip {
-  width: 8vw;
-  height: 6.2vh;
+  width: 9.6vw;
+  height: 8.6vh;
   margin-left: 1.4vw;
   align-items: center;
   justify-content: center;
-  border-radius: 3.1vh;
-  background-color: #182335;
+  border-radius: 4.3vh;
+  background-color: #1a2637;
 }
 
 .chip-on { background-color: #3f6fd8; }
 
-.chip-text { color: #d6e2f0; font-size: 3.4vh; }
+.chip-text { color: #dde8f5; font-size: 4.8vh; font-weight: bold; }
 
 .mode-chip {
-  width: 12vw;
-  height: 6.2vh;
+  width: 14vw;
+  height: 8.6vh;
   margin-left: 1.4vw;
   align-items: center;
   justify-content: center;
-  border-radius: 3.1vh;
-  background-color: #182335;
+  border-radius: 4.3vh;
+  background-color: #1a2637;
 }
 
 .mode-chip-on { background-color: #3f6fd8; }
 
-.mode-text { color: #d6e2f0; font-size: 3.2vh; }
+.mode-text { color: #dde8f5; font-size: 4.6vh; }
 
 .toggle {
-  width: 12vw;
-  height: 6.2vh;
+  width: 14vw;
+  height: 8.6vh;
   margin-left: auto;
   align-items: center;
   justify-content: center;
-  border-radius: 3.1vh;
-  background-color: #182335;
+  border-radius: 4.3vh;
+  background-color: #1a2637;
 }
 
 .toggle-on { background-color: #3f6fd8; }
 
-.toggle-text { color: #d6e2f0; font-size: 3.2vh; }
+.toggle-text { color: #dde8f5; font-size: 4.6vh; }
 
 .tail-pad { width: 100%; height: 3vh; }
 
 /* ---------- 词库 ---------- */
 .dict-card {
   width: 100%;
-  margin-top: 2vh;
-  padding: 2.2vh 2vw;
-  border-radius: 2.4vh;
+  margin-top: 2.2vh;
+  padding: 2.4vh 2.2vw;
+  border-radius: 2.6vh;
   background-color: #141d2b;
 }
 
-.dict-card-active { background-color: #16233a; }
+.dict-card-active { background-color: #17263d; }
 
 .dict-main { width: 100%; }
 
 .dict-title-row { flex-direction: row; align-items: center; }
 
-.dict-name { color: #ffffff; font-size: 4.2vh; font-weight: bold; }
+.dict-name { color: #ffffff; font-size: 5vh; font-weight: bold; }
 
 .badge {
   margin-left: 1.4vw;
-  padding-left: 1.2vw;
-  padding-right: 1.2vw;
-  padding-top: 0.3vh;
-  padding-bottom: 0.3vh;
-  border-radius: 2vh;
+  padding-left: 1.3vw;
+  padding-right: 1.3vw;
+  padding-top: 0.4vh;
+  padding-bottom: 0.4vh;
+  border-radius: 2.2vh;
   background-color: #3f6fd8;
   color: #ffffff;
-  font-size: 2.8vh;
+  font-size: 3.8vh;
 }
 
-.dict-desc { margin-top: 0.8vh; color: #71829a; font-size: 3.1vh; lines: 1; text-overflow: ellipsis; }
+.dict-desc { margin-top: 0.9vh; color: #8698b0; font-size: 4.6vh; lines: 1; text-overflow: ellipsis; }
 
 .dict-track {
   width: 100%;
-  height: 1vh;
-  margin-top: 1.4vh;
+  height: 1.2vh;
+  margin-top: 1.6vh;
   border-radius: 0.6vh;
   background-color: #223046;
 }
 
-.dict-fill { height: 1vh; border-radius: 0.6vh; background-color: #47b98a; }
+.dict-fill { height: 1.2vh; border-radius: 0.6vh; background-color: #47b98a; }
 
-.dict-meta { margin-top: 0.8vh; color: #71829a; font-size: 3vh; }
+.dict-meta { margin-top: 0.9vh; color: #8698b0; font-size: 4.6vh; }
 
 /* ---------- 续学页（纵向容器里的按钮必须是容器的直接子节点） ---------- */
 .resume-body {
@@ -565,83 +585,83 @@ export default {
 }
 
 .resume-card {
-  width: 62vw;
-  padding: 3vh 3vw;
+  width: 64vw;
+  padding: 3.4vh 3.4vw;
   flex-direction: column;
   align-items: center;
-  border-radius: 3vh;
+  border-radius: 3.2vh;
   background-color: #141d2b;
 }
 
-.resume-title { color: #ffffff; font-size: 5.6vh; font-weight: bold; }
+.resume-title { color: #ffffff; font-size: 7.2vh; font-weight: bold; }
 
-.resume-sub { margin-top: 1vh; color: #71829a; font-size: 3.4vh; text-align: center; }
+.resume-sub { margin-top: 1.2vh; color: #78899f; font-size: 4.4vh; text-align: center; }
 
 .resume-btn {
   width: 100%;
-  height: 11vh;
-  margin-top: 2vh;
+  height: 14vh;
+  margin-top: 2.2vh;
   align-items: center;
   justify-content: center;
-  border-radius: 5.5vh;
+  border-radius: 7vh;
 }
 
 .resume-btn-solid { background-color: #3f6fd8; }
 
 .resume-btn-ghost { background-color: #1a2434; }
 
-.resume-btn-text { color: #ffffff; font-size: 4vh; font-weight: bold; }
+.resume-btn-text { color: #ffffff; font-size: 5.2vh; font-weight: bold; }
 
 /* ---------- 学习 / 复习 ---------- */
 .session {
   width: 100%;
   flex: 1;
   flex-direction: column;
-  padding-left: 2vw;
-  padding-right: 2vw;
-  padding-top: 1.4vh;
-  padding-bottom: 1.8vh;
+  padding-left: 2.4vw;
+  padding-right: 2.4vw;
+  padding-top: 1.6vh;
+  padding-bottom: 2vh;
   overflow: hidden;
 }
 
-.progress { width: 100%; height: 5vh; flex-direction: row; align-items: center; }
+.progress { width: 100%; height: 5.4vh; flex-direction: row; align-items: center; }
 
-.progress-text { color: #71829a; font-size: 3.2vh; }
+.progress-text { color: #7d8ea3; font-size: 4.8vh; }
 
 .track {
   flex: 1;
-  height: 1.4vh;
+  height: 1.6vh;
   margin-left: 2vw;
-  border-radius: 0.7vh;
+  border-radius: 0.8vh;
   background-color: #1d2839;
 }
 
-.fill { height: 1.4vh; border-radius: 0.7vh; background-color: #47b98a; }
+.fill { height: 1.6vh; border-radius: 0.8vh; background-color: #47b98a; }
 
 .word-panel { width: 100%; flex: 1; align-items: center; justify-content: center; }
 
 .word {
   max-width: 92vw;
   color: #ffffff;
-  font-size: 11vh;
+  font-size: 13vh;
   font-weight: bold;
   lines: 1;
   text-overflow: ellipsis;
 }
 
-.phonetic { margin-top: 1vh; color: #71829a; font-size: 4.2vh; }
+.phonetic { margin-top: 1.2vh; color: #7d8ea3; font-size: 5.2vh; }
 
 .reveal-box {
-  margin-top: 2.2vh;
-  padding: 1.8vh 2.4vw;
-  border-radius: 1.8vh;
+  margin-top: 2.4vh;
+  padding: 2vh 2.6vw;
+  border-radius: 2vh;
   background-color: #131c2b;
 }
 
 .translation {
   max-width: 88vw;
-  color: #dbe6f4;
-  font-size: 4.2vh;
+  color: #e0eaf6;
+  font-size: 5.2vh;
   lines: 3;
   text-align: center;
 }
@@ -649,25 +669,25 @@ export default {
 .prompt-cn {
   max-width: 88vw;
   color: #ffffff;
-  font-size: 6vh;
+  font-size: 7.4vh;
   font-weight: bold;
   lines: 2;
   text-align: center;
 }
 
-.hint { margin-top: 1.8vh; color: #5d6f87; font-size: 3.4vh; }
+.hint { margin-top: 2vh; color: #8698b0; font-size: 4.8vh; }
 
-.rating { width: 100%; height: 13vh; flex-direction: row; }
+.rating { width: 100%; height: 14vh; flex-direction: row; }
 
 .rate {
   flex: 1;
-  height: 13vh;
+  height: 14vh;
   align-items: center;
   justify-content: center;
-  border-radius: 6.5vh;
+  border-radius: 7vh;
 }
 
-.rate-left { margin-right: 1.4vw; }
+.rate-left { margin-right: 1.6vw; }
 
 .hard { background-color: #4a2f3c; }
 
@@ -675,26 +695,60 @@ export default {
 
 .wide { background-color: #3f6fd8; }
 
-.choices { width: 100%; height: 44vh; }
+/* 巩固：2*2 选项网格 */
+.choices { width: 100%; height: 42vh; flex-direction: column; justify-content: space-between; }
+
+.choice-row { width: 100%; height: 20vh; flex-direction: row; align-items: center; }
 
 .choice {
-  width: 100%;
-  height: 9.6vh;
-  margin-bottom: 1.6vh;
-  justify-content: center;
-  padding-left: 2.4vw;
-  padding-right: 2.4vw;
-  border-radius: 1.8vh;
+  flex: 1;
+  height: 20vh;
+  flex-direction: row;
+  align-items: center;
+  margin-right: 1.6vw;
+  padding-left: 1.8vw;
+  padding-right: 1.6vw;
+  border-radius: 2.4vh;
+  border-width: 0.25vh;
+  border-color: #223047;
   background-color: #16202e;
 }
 
-.choice-wrong { background-color: #4a2f3c; }
+.choice-last { margin-right: 0; }
 
-.choice-correct { background-color: #23453a; }
+.choice-badge {
+  width: 7.6vh;
+  height: 7.6vh;
+  align-items: center;
+  justify-content: center;
+  border-radius: 3.8vh;
+  background-color: #22304a;
+}
 
-.choice-text { color: #d6e2f0; font-size: 3.8vh; lines: 1; text-overflow: ellipsis; }
+.choice-badge-text { color: #9fbde8; font-size: 4.6vh; font-weight: bold; }
 
-.choice-word { color: #ffffff; font-size: 4.4vh; font-weight: bold; lines: 1; text-overflow: ellipsis; }
+.choice-wrong { background-color: #4a2f3c; border-color: #6d4257; }
+
+.choice-correct { background-color: #23453a; border-color: #47b98a; }
+
+.choice-text {
+  flex: 1;
+  margin-left: 1.6vw;
+  color: #dde8f5;
+  font-size: 4.8vh;
+  lines: 2;
+  text-overflow: ellipsis;
+}
+
+.choice-word {
+  flex: 1;
+  margin-left: 1.6vw;
+  color: #ffffff;
+  font-size: 5vh;
+  font-weight: bold;
+  lines: 1;
+  text-overflow: ellipsis;
+}
 
 /* ---------- 结算 ---------- */
 .summary {
@@ -705,25 +759,26 @@ export default {
   justify-content: center;
 }
 
-.summary-title { color: #ffffff; font-size: 7vh; font-weight: bold; }
+.summary-title { color: #ffffff; font-size: 8vh; font-weight: bold; }
 
-.summary-sub { margin-top: 1.2vh; color: #71829a; font-size: 3.6vh; }
+.summary-sub { margin-top: 1.4vh; color: #7d8ea3; font-size: 4.4vh; }
 
-.result { width: 72vw; height: 15vh; flex-direction: row; margin-top: 3vh; margin-bottom: 3vh; }
+.result { width: 74vw; height: 17vh; flex-direction: row; margin-top: 3.2vh; margin-bottom: 3.2vh; }
 
 .result-cell { flex: 1; align-items: center; justify-content: center; }
 
-.result-num { color: #ffffff; font-size: 6.4vh; font-weight: bold; }
+.result-num { color: #ffffff; font-size: 7.6vh; font-weight: bold; }
 
-.result-label { margin-top: 0.8vh; color: #71829a; font-size: 3.2vh; }
+.result-label { margin-top: 0.9vh; color: #8698b0; font-size: 4.8vh; }
 
 .home-btn {
-  width: 40vw;
-  height: 12vh;
+  width: 42vw;
+  height: 14vh;
   align-items: center;
   justify-content: center;
-  border-radius: 6vh;
+  border-radius: 7vh;
   background-color: #3f6fd8;
+  background-image: linear-gradient(to bottom, #4d7fe6, #3862c6);
 }
 
 .loading { width: 100%; flex: 1; align-items: center; justify-content: center; }
@@ -732,10 +787,10 @@ export default {
   position: absolute;
   bottom: 5vh;
   align-self: center;
-  padding: 1.4vh 2.4vw;
-  border-radius: 3vh;
+  padding: 1.6vh 2.6vw;
+  border-radius: 3.2vh;
   background-color: #22304a;
 }
 
-.toast-text { color: #ffffff; font-size: 3.4vh; }
+.toast-text { color: #ffffff; font-size: 4.2vh; }
 </style>
